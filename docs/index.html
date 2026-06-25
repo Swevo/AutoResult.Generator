@@ -1,0 +1,532 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="AutoResult.Generator — compile-time Result&lt;T&gt; monad for .NET using Roslyn source generators. Result types are auto-injected and [TryWrap] generates Try*() wrappers for public methods." />
+  <title>AutoResult.Generator — Compile-time Result&lt;T&gt; monad for .NET</title>
+
+  <!-- Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+
+  <!-- Prism.js syntax highlighting -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/themes/prism-tomorrow.min.css" />
+  <script src="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/prism.min.js" defer></script>
+  <script src="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/components/prism-csharp.min.js" defer></script>
+
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            brand: { DEFAULT: '#7c3aed', light: '#a78bfa', dark: '#5b21b6' },
+          },
+          fontFamily: { mono: ['"JetBrains Mono"', '"Fira Code"', 'monospace'] }
+        }
+      }
+    }
+  </script>
+
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
+    body { font-family: 'Inter', sans-serif; }
+
+    .gradient-text {
+      background: linear-gradient(135deg, #7c3aed 0%, #a78bfa 50%, #06b6d4 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    .hero-bg {
+      background: radial-gradient(ellipse 80% 60% at 50% -10%, rgba(124,58,237,0.15) 0%, transparent 70%);
+    }
+
+    pre[class*="language-"] {
+      border-radius: 0.75rem !important;
+      font-size: 0.85rem !important;
+      margin: 0 !important;
+    }
+
+    .copy-btn {
+      position: absolute; top: 0.6rem; right: 0.75rem;
+      font-size: 0.7rem; padding: 0.2rem 0.55rem;
+      background: rgba(255,255,255,0.08); color: #a78bfa;
+      border: 1px solid rgba(167,139,250,0.25); border-radius: 0.375rem;
+      cursor: pointer; transition: background 0.15s;
+    }
+    .copy-btn:hover { background: rgba(124,58,237,0.3); }
+
+    .feature-card {
+      background: rgba(255,255,255,0.03);
+      border: 1px solid rgba(255,255,255,0.07);
+      transition: border-color 0.2s, transform 0.2s;
+    }
+    .feature-card:hover {
+      border-color: rgba(124,58,237,0.4);
+      transform: translateY(-2px);
+    }
+  </style>
+</head>
+<body class="bg-gray-950 text-gray-200 min-h-screen">
+
+  <!-- ─── NAV ─────────────────────────────────────────────────────────────── -->
+  <nav class="border-b border-white/5 sticky top-0 z-50 backdrop-blur bg-gray-950/90">
+    <div class="max-w-6xl mx-auto px-6 py-4 flex items-center justify-between">
+      <span class="font-bold text-white text-lg tracking-tight">
+        <span class="text-brand">Auto</span>Result.Generator
+      </span>
+      <div class="flex items-center gap-6 text-sm text-gray-400">
+        <a href="#features" class="hover:text-white transition">Features</a>
+        <a href="#examples" class="hover:text-white transition">Examples</a>
+        <a href="#diagnostics" class="hover:text-white transition">Diagnostics</a>
+        <a href="https://github.com/Swevo/AutoResult.Generator" target="_blank"
+           class="flex items-center gap-1.5 hover:text-white transition">
+          <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
+            <path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0 0 24 12c0-6.63-5.37-12-12-12z"/>
+          </svg>
+          GitHub
+        </a>
+        <a href="https://www.nuget.org/packages/AutoResult.Generator" target="_blank"
+           class="bg-brand text-white px-4 py-1.5 rounded-full text-sm font-medium hover:bg-brand-dark transition">
+          NuGet ↗
+        </a>
+      </div>
+    </div>
+  </nav>
+
+  <!-- ─── HERO ─────────────────────────────────────────────────────────────── -->
+  <section class="hero-bg pt-24 pb-20 px-6 text-center">
+    <div class="max-w-4xl mx-auto">
+      <div class="inline-flex items-center gap-2 bg-brand/10 border border-brand/20 text-brand-light text-xs font-medium px-3 py-1 rounded-full mb-8">
+        ✨ Roslyn source generator — Result types auto-injected, Try* wrappers generated at build time
+      </div>
+
+      <h1 class="text-5xl sm:text-6xl font-extrabold text-white leading-tight mb-6">
+        AutoResult.Generator<br/>
+        <span class="gradient-text">Compile-time Result&lt;T&gt; monad for .NET.</span>
+      </h1>
+
+      <p class="text-xl text-gray-400 max-w-2xl mx-auto mb-10 leading-relaxed">
+        Always emits <code class="text-brand-light bg-white/5 px-1.5 py-0.5 rounded text-base">Result&lt;T&gt;</code>,
+        <code class="text-brand-light bg-white/5 px-1.5 py-0.5 rounded text-base">Result&lt;T,TError&gt;</code>,
+        <code class="text-brand-light bg-white/5 px-1.5 py-0.5 rounded text-base">Unit</code>, and
+        <code class="text-brand-light bg-white/5 px-1.5 py-0.5 rounded text-base">ResultExtensions</code> —
+        then <code class="text-brand-light bg-white/5 px-1.5 py-0.5 rounded text-base">[TryWrap]</code> generates
+        safe <code class="text-brand-light bg-white/5 px-1.5 py-0.5 rounded text-base">Try*()</code> wrappers for every public method.
+      </p>
+
+      <div class="relative inline-flex items-center bg-gray-900 border border-white/10 rounded-xl px-5 py-3.5 mb-8 max-w-lg w-full">
+        <span class="text-gray-500 mr-3 select-none text-sm">$</span>
+        <code class="text-green-400 text-sm font-mono tracking-wide flex-1 text-left" id="install-cmd">
+          dotnet add package AutoResult.Generator
+        </code>
+        <button onclick="copyInstall()" class="copy-btn" id="copy-install-btn">copy</button>
+      </div>
+
+      <div class="flex flex-wrap justify-center gap-3 mb-8">
+        <a href="https://www.nuget.org/packages/AutoResult.Generator" target="_blank">
+          <img src="https://img.shields.io/nuget/v/AutoResult.Generator.svg" alt="NuGet version" />
+        </a>
+        <a href="https://github.com/Swevo/AutoResult.Generator/actions/workflows/build.yml" target="_blank">
+          <img src="https://github.com/Swevo/AutoResult.Generator/actions/workflows/build.yml/badge.svg" alt="CI status" />
+        </a>
+      </div>
+
+      <div class="flex flex-wrap justify-center gap-4 mb-12">
+        <a href="https://www.nuget.org/packages/AutoResult.Generator" target="_blank"
+           class="bg-brand text-white px-6 py-3 rounded-xl font-semibold hover:bg-brand-dark transition">
+          View on NuGet
+        </a>
+        <a href="https://github.com/Swevo/AutoResult.Generator" target="_blank"
+           class="border border-white/10 bg-white/5 text-white px-6 py-3 rounded-xl font-semibold hover:bg-white/10 transition">
+          GitHub
+        </a>
+      </div>
+
+      <div class="grid md:grid-cols-2 gap-4 text-left max-w-4xl mx-auto">
+        <div class="relative">
+          <div class="text-xs text-gray-500 font-mono mb-2 pl-1">your service</div>
+          <pre><code class="language-csharp">using AutoResult;
+
+[TryWrap]
+public partial class OrderService
+{
+    public int GetOrderId(string name) => 42;
+
+    public void ProcessOrder(int id) { /* ... */ }
+
+    public async Task&lt;Order&gt; FetchOrderAsync(
+        int id,
+        CancellationToken ct = default)
+        =&gt; await _repo.GetAsync(id, ct);
+}</code></pre>
+        </div>
+        <div class="relative">
+          <div class="text-xs text-gray-500 font-mono mb-2 pl-1">generated at build time</div>
+          <pre><code class="language-csharp">// ✨ AutoResult.g.cs
+public partial class OrderService
+{
+    public Result&lt;int&gt; TryGetOrderId(string name)
+    {
+        try { return Result&lt;int&gt;.Ok(GetOrderId(name)); }
+        catch (Exception ex) { return Result&lt;int&gt;.Fail(ex); }
+    }
+
+    public Result&lt;Unit&gt; TryProcessOrder(int id)
+    {
+        try { ProcessOrder(id); return Result&lt;Unit&gt;.Ok(Unit.Value); }
+        catch (Exception ex) { return Result&lt;Unit&gt;.Fail(ex); }
+    }
+}</code></pre>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ─── FEATURES ─────────────────────────────────────────────────────────── -->
+  <section id="features" class="py-24 px-6 bg-gray-950">
+    <div class="max-w-6xl mx-auto">
+      <h2 class="text-3xl font-bold text-white text-center mb-4">Everything you need</h2>
+      <p class="text-gray-400 text-center mb-16 max-w-xl mx-auto">
+        Result types, wrappers, and composition helpers generated into your project with zero runtime ceremony.
+      </p>
+
+      <div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-5">
+        <div class="feature-card rounded-2xl p-6">
+          <div class="text-3xl mb-4">📦</div>
+          <h3 class="text-white font-semibold text-lg mb-2">Always-Available Types</h3>
+          <p class="text-gray-400 text-sm leading-relaxed">
+            <code class="text-brand-light">Result&lt;T&gt;</code>, <code class="text-brand-light">Result&lt;T,TError&gt;</code>,
+            <code class="text-brand-light">Unit</code>, and <code class="text-brand-light">ResultExtensions</code>
+            are injected into every compilation automatically.
+          </p>
+        </div>
+
+        <div class="feature-card rounded-2xl p-6">
+          <div class="text-3xl mb-4">⚡</div>
+          <h3 class="text-white font-semibold text-lg mb-2">Zero Boilerplate</h3>
+          <p class="text-gray-400 text-sm leading-relaxed">
+            Add <code class="text-brand-light">[TryWrap]</code> to a partial class and the generator emits
+            <code class="text-brand-light">Try*()</code> wrappers for all public instance methods automatically.
+          </p>
+        </div>
+
+        <div class="feature-card rounded-2xl p-6">
+          <div class="text-3xl mb-4">🔁</div>
+          <h3 class="text-white font-semibold text-lg mb-2">All Method Kinds</h3>
+          <p class="text-gray-400 text-sm leading-relaxed">
+            Sync, void, async <code class="text-brand-light">Task&lt;T&gt;</code>, and async-void
+            <code class="text-brand-light">Task</code> methods are all handled correctly.
+          </p>
+        </div>
+
+        <div class="feature-card rounded-2xl p-6">
+          <div class="text-3xl mb-4">🚂</div>
+          <h3 class="text-white font-semibold text-lg mb-2">Railway-Oriented</h3>
+          <p class="text-gray-400 text-sm leading-relaxed">
+            Compose success and failure paths with <code class="text-brand-light">Map</code>,
+            <code class="text-brand-light">Bind</code>, and <code class="text-brand-light">Match</code>
+            via <code class="text-brand-light">ResultExtensions</code>.
+          </p>
+        </div>
+
+        <div class="feature-card rounded-2xl p-6">
+          <div class="text-3xl mb-4">🪤</div>
+          <h3 class="text-white font-semibold text-lg mb-2">No Double-Wrapping</h3>
+          <p class="text-gray-400 text-sm leading-relaxed">
+            Methods already prefixed with <code class="text-brand-light">Try</code> are skipped automatically,
+            so generated wrappers never collide with existing APIs.
+          </p>
+        </div>
+
+        <div class="feature-card rounded-2xl p-6">
+          <div class="text-3xl mb-4">🛡️</div>
+          <h3 class="text-white font-semibold text-lg mb-2">Compile-Time Diagnostics</h3>
+          <p class="text-gray-400 text-sm leading-relaxed">
+            <code class="text-brand-light">AR001</code> and <code class="text-brand-light">AR002</code>
+            catch misuse during the build, not after your app is already running.
+          </p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ─── EXAMPLES ─────────────────────────────────────────────────────────── -->
+  <section id="examples" class="py-24 px-6 bg-gray-900/50">
+    <div class="max-w-5xl mx-auto">
+      <h2 class="text-3xl font-bold text-white text-center mb-4">Examples</h2>
+      <p class="text-gray-400 text-center mb-16 max-w-xl mx-auto">
+        From attribute to generated wrappers to railway-style composition.
+      </p>
+
+      <div class="flex flex-wrap gap-2 mb-8" id="tabs">
+        <button onclick="showTab('basic')" class="tab-btn active-tab px-4 py-2 rounded-lg text-sm font-medium">Basic Usage</button>
+        <button onclick="showTab('generated')" class="tab-btn px-4 py-2 rounded-lg text-sm font-medium">Generated Code</button>
+        <button onclick="showTab('core')" class="tab-btn px-4 py-2 rounded-lg text-sm font-medium">Core Types</button>
+        <button onclick="showTab('railway')" class="tab-btn px-4 py-2 rounded-lg text-sm font-medium">Railway Composition</button>
+      </div>
+
+      <style>
+        .tab-btn { color: #9ca3af; background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.06); transition: all 0.15s; }
+        .tab-btn:hover { color: #e5e7eb; background: rgba(255,255,255,0.07); }
+        .active-tab { color: #a78bfa !important; background: rgba(124,58,237,0.15) !important; border-color: rgba(124,58,237,0.35) !important; }
+        .tab-panel { display: none; }
+        .tab-panel.active { display: block; }
+      </style>
+
+      <div id="tab-basic" class="tab-panel active relative">
+        <button onclick="copyCode('tab-basic')" class="copy-btn">copy</button>
+        <pre><code class="language-csharp">using AutoResult;
+
+[TryWrap]
+public partial class OrderService
+{
+    public int GetOrderId(string name) =&gt; 42;
+    public void ProcessOrder(int id) { /* ... */ }
+    public async Task&lt;Order&gt; FetchOrderAsync(int id, CancellationToken ct = default)
+        =&gt; await _repo.GetAsync(id, ct);
+}</code></pre>
+      </div>
+
+      <div id="tab-generated" class="tab-panel relative">
+        <button onclick="copyCode('tab-generated')" class="copy-btn">copy</button>
+        <pre><code class="language-csharp">// Auto-generated by AutoResult.Generator
+public partial class OrderService
+{
+    public Result&lt;int&gt; TryGetOrderId(string name)
+    {
+        try { return Result&lt;int&gt;.Ok(GetOrderId(name)); }
+        catch (Exception ex) { return Result&lt;int&gt;.Fail(ex); }
+    }
+
+    public Result&lt;Unit&gt; TryProcessOrder(int id)
+    {
+        try { ProcessOrder(id); return Result&lt;Unit&gt;.Ok(Unit.Value); }
+        catch (Exception ex) { return Result&lt;Unit&gt;.Fail(ex); }
+    }
+
+    public async Task&lt;Result&lt;Order&gt;&gt; TryFetchOrderAsync(int id, CancellationToken ct = default)
+    {
+        try { return Result&lt;Order&gt;.Ok(await FetchOrderAsync(id, ct)); }
+        catch (Exception ex) { return Result&lt;Order&gt;.Fail(ex); }
+    }
+}</code></pre>
+      </div>
+
+      <div id="tab-core" class="tab-panel relative">
+        <button onclick="copyCode('tab-core')" class="copy-btn">copy</button>
+        <pre><code class="language-csharp">// Always available — no extra imports needed
+var ok  = Result&lt;int&gt;.Ok(42);
+var err = Result&lt;int&gt;.Fail(new Exception("oops"));
+
+ok.IsSuccess  // true
+ok.Value      // 42
+err.IsFailure // true
+err.Error     // Exception
+
+// Void methods return Result&lt;Unit&gt;
+Result&lt;Unit&gt;.Ok(Unit.Value)
+
+// Two-type variant for typed errors
+var r = Result&lt;int, ValidationError&gt;.Ok(42);
+var e = Result&lt;int, ValidationError&gt;.Fail(new ValidationError("bad input"));</code></pre>
+      </div>
+
+      <div id="tab-railway" class="tab-panel relative">
+        <button onclick="copyCode('tab-railway')" class="copy-btn">copy</button>
+        <pre><code class="language-csharp">var result = await service.TryFetchOrderAsync(id)
+    .Map(order =&gt; order.ToDto())           // transform on success
+    .Bind(dto =&gt; ValidateDto(dto))         // chain result-returning call
+    .Match(
+        onSuccess: dto =&gt; Ok(dto),         // map to HTTP result
+        onFailure: ex  =&gt; Problem(ex.Message)
+    );</code></pre>
+      </div>
+    </div>
+  </section>
+
+  <!-- ─── DIAGNOSTICS ───────────────────────────────────────────────────────── -->
+  <section id="diagnostics" class="py-24 px-6 bg-gray-950">
+    <div class="max-w-4xl mx-auto">
+      <h2 class="text-3xl font-bold text-white text-center mb-4">Build-time diagnostics</h2>
+      <p class="text-gray-400 text-center mb-12 max-w-xl mx-auto">
+        Misuse is reported by the compiler before it ships to production.
+      </p>
+
+      <div class="overflow-x-auto rounded-2xl border border-white/7">
+        <table class="w-full text-sm">
+          <thead>
+            <tr class="border-b border-white/7 bg-white/3">
+              <th class="text-left px-6 py-4 text-gray-300 font-semibold">Code</th>
+              <th class="text-left px-6 py-4 text-gray-300 font-semibold">Severity</th>
+              <th class="text-left px-6 py-4 text-gray-300 font-semibold">Description</th>
+            </tr>
+          </thead>
+          <tbody class="divide-y divide-white/5">
+            <tr class="hover:bg-white/2">
+              <td class="px-6 py-4 font-mono text-brand-light font-medium">AR001</td>
+              <td class="px-6 py-4"><span class="text-red-400">✖ Error</span></td>
+              <td class="px-6 py-4 text-gray-300"><code class="text-brand-light">[TryWrap]</code> applied to a non-partial class</td>
+            </tr>
+            <tr class="hover:bg-white/2">
+              <td class="px-6 py-4 font-mono text-brand-light font-medium">AR002</td>
+              <td class="px-6 py-4"><span class="text-yellow-400">⚠ Warning</span></td>
+              <td class="px-6 py-4 text-gray-300"><code class="text-brand-light">[TryWrap]</code> class has no wrappable public methods</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+
+  <!-- ─── COMPARISON ────────────────────────────────────────────────────────── -->
+  <section class="py-24 px-6 bg-gray-900/50">
+    <div class="max-w-4xl mx-auto">
+      <h2 class="text-3xl font-bold text-white text-center mb-4">How it compares</h2>
+      <p class="text-gray-400 text-center mb-12 max-w-xl mx-auto">
+        Source-generated wrappers and auto-injected types without bringing in a runtime result library.
+      </p>
+
+      <div class="overflow-x-auto rounded-2xl border border-white/7">
+        <table class="w-full text-sm">
+          <thead>
+            <tr class="border-b border-white/7 bg-white/3">
+              <th class="text-left px-6 py-4 text-gray-300 font-semibold">Feature</th>
+              <th class="text-left px-6 py-4 text-brand-light font-semibold">AutoResult.Generator</th>
+              <th class="text-left px-6 py-4 text-gray-300 font-semibold">FluentResults</th>
+              <th class="text-left px-6 py-4 text-gray-300 font-semibold">OneOf</th>
+            </tr>
+          </thead>
+          <tbody class="divide-y divide-white/5 text-gray-300">
+            <tr class="hover:bg-white/2">
+              <td class="px-6 py-4">Compile-time wrapper generation</td>
+              <td class="px-6 py-4 text-green-400">✅</td>
+              <td class="px-6 py-4 text-red-400">❌</td>
+              <td class="px-6 py-4 text-red-400">❌</td>
+            </tr>
+            <tr class="hover:bg-white/2">
+              <td class="px-6 py-4">Zero runtime overhead</td>
+              <td class="px-6 py-4 text-green-400">✅</td>
+              <td class="px-6 py-4">Minimal</td>
+              <td class="px-6 py-4">Minimal</td>
+            </tr>
+            <tr class="hover:bg-white/2">
+              <td class="px-6 py-4">Core types auto-injected</td>
+              <td class="px-6 py-4 text-green-400">✅</td>
+              <td class="px-6 py-4 text-red-400">❌ (install package)</td>
+              <td class="px-6 py-4 text-red-400">❌ (install package)</td>
+            </tr>
+            <tr class="hover:bg-white/2">
+              <td class="px-6 py-4">AOT-safe</td>
+              <td class="px-6 py-4 text-green-400">✅</td>
+              <td class="px-6 py-4 text-green-400">✅</td>
+              <td class="px-6 py-4 text-green-400">✅</td>
+            </tr>
+            <tr class="hover:bg-white/2">
+              <td class="px-6 py-4">No extra dependency</td>
+              <td class="px-6 py-4 text-green-400">✅</td>
+              <td class="px-6 py-4 text-red-400">❌</td>
+              <td class="px-6 py-4 text-red-400">❌</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+
+  <!-- ─── ALSO BY THE SAME AUTHOR ──────────────────────────────────────────── -->
+  <section class="py-24 px-6 bg-gray-950">
+    <div class="max-w-5xl mx-auto">
+      <h2 class="text-3xl font-bold text-white text-center mb-4">Also by the same author</h2>
+      <p class="text-gray-400 text-center mb-16 max-w-2xl mx-auto">
+        More compile-time tooling from Justin Bannister and the Swevo ecosystem.
+      </p>
+
+      <div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-5">
+        <div class="feature-card rounded-2xl p-6">
+          <div class="text-3xl mb-4">🌐</div>
+          <h3 class="text-white font-semibold text-lg mb-2">Portfolio hub</h3>
+          <p class="text-gray-400 text-sm leading-relaxed mb-4">Explore the full Auto* family and product overview at swevo.github.io.</p>
+          <a href="https://swevo.github.io/" target="_blank" class="text-brand-light hover:text-white transition text-sm font-medium">Visit hub ↗</a>
+        </div>
+
+        <div class="feature-card rounded-2xl p-6">
+          <div class="text-3xl mb-4">🧵</div>
+          <h3 class="text-white font-semibold text-lg mb-2">AutoWire</h3>
+          <p class="text-gray-400 text-sm leading-relaxed mb-4">Compile-time dependency injection registration with zero reflection.</p>
+          <a href="https://github.com/Swevo/AutoWire" target="_blank" class="text-brand-light hover:text-white transition text-sm font-medium">GitHub ↗</a>
+        </div>
+
+        <div class="feature-card rounded-2xl p-6">
+          <div class="text-3xl mb-4">🗺️</div>
+          <h3 class="text-white font-semibold text-lg mb-2">AutoMap.Generator</h3>
+          <p class="text-gray-400 text-sm leading-relaxed mb-4">Generate object mapping code at build time. Browse the repo or published docs.</p>
+          <div class="flex gap-4 text-sm font-medium">
+            <a href="https://github.com/Swevo/AutoMap.Generator" target="_blank" class="text-brand-light hover:text-white transition">GitHub ↗</a>
+            <a href="https://swevo.github.io/AutoMap.Generator/" target="_blank" class="text-brand-light hover:text-white transition">Docs ↗</a>
+          </div>
+        </div>
+
+        <div class="feature-card rounded-2xl p-6">
+          <div class="text-3xl mb-4">✅</div>
+          <h3 class="text-white font-semibold text-lg mb-2">AutoValidate.Generator</h3>
+          <p class="text-gray-400 text-sm leading-relaxed mb-4">Compile-time FluentValidation registration and diagnostics with published docs.</p>
+          <div class="flex gap-4 text-sm font-medium">
+            <a href="https://github.com/Swevo/AutoValidate.Generator" target="_blank" class="text-brand-light hover:text-white transition">GitHub ↗</a>
+            <a href="https://swevo.github.io/AutoValidate.Generator/" target="_blank" class="text-brand-light hover:text-white transition">Docs ↗</a>
+          </div>
+        </div>
+
+        <div class="feature-card rounded-2xl p-6">
+          <div class="text-3xl mb-4">🔎</div>
+          <h3 class="text-white font-semibold text-lg mb-2">AutoQuery.Generator</h3>
+          <p class="text-gray-400 text-sm leading-relaxed mb-4">Generate query specifications at compile time for clean LINQ composition.</p>
+          <a href="https://github.com/Swevo/AutoQuery.Generator" target="_blank" class="text-brand-light hover:text-white transition text-sm font-medium">GitHub ↗</a>
+        </div>
+
+        <div class="feature-card rounded-2xl p-6">
+          <div class="text-3xl mb-4">📮</div>
+          <h3 class="text-white font-semibold text-lg mb-2">AutoDispatch.Generator</h3>
+          <p class="text-gray-400 text-sm leading-relaxed mb-4">Compile-time CQRS dispatcher generation with strongly typed handlers.</p>
+          <a href="https://github.com/Swevo/AutoDispatch.Generator" target="_blank" class="text-brand-light hover:text-white transition text-sm font-medium">GitHub ↗</a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ─── FOOTER ────────────────────────────────────────────────────────────── -->
+  <footer class="border-t border-white/5 py-12 px-6 text-center text-gray-500 text-sm">
+    <p class="mb-2">
+      MIT © Justin Bannister ·
+      <a href="https://github.com/Swevo/AutoResult.Generator" class="text-brand-light hover:text-white transition">GitHub</a>
+      ·
+      <a href="https://www.nuget.org/packages/AutoResult.Generator" class="text-brand-light hover:text-white transition">NuGet</a>
+    </p>
+    <p class="text-gray-600">
+      <span class="text-brand font-semibold">AutoResult.Generator</span> — compile-time Result tooling for .NET
+    </p>
+  </footer>
+
+  <script>
+    function copyInstall() {
+      navigator.clipboard.writeText('dotnet add package AutoResult.Generator');
+      const btn = document.getElementById('copy-install-btn');
+      btn.textContent = 'copied!';
+      setTimeout(() => btn.textContent = 'copy', 2000);
+    }
+
+    function copyCode(tabId) {
+      const code = document.querySelector(`#${tabId} code`);
+      if (code) navigator.clipboard.writeText(code.textContent);
+    }
+
+    function showTab(name) {
+      document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+      document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active-tab'));
+      document.getElementById('tab-' + name).classList.add('active');
+      event.target.classList.add('active-tab');
+    }
+  </script>
+</body>
+</html>
