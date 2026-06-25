@@ -94,6 +94,7 @@ Unit.Value  // for void-returning methods
 | [**AutoMap.Generator**](https://github.com/Swevo/AutoMap.Generator) | Compile-time object mapping — `[Map(typeof(Dto))]` generates `ToDto()` extension methods. Zero reflection, AOT-safe. |
 | [**AutoValidate.Generator**](https://github.com/Swevo/AutoValidate.Generator) | Compile-time FluentValidation wiring — discovers `AbstractValidator<T>` subclasses and generates `AddValidators()`. |
 | [**AutoQuery.Generator**](https://github.com/Swevo/AutoQuery.Generator) | Compile-time LINQ query specs — `[QuerySpec(typeof(T))]` generates `Apply(IQueryable<T>)`. |
+| [**AutoDispatch.Generator**](https://github.com/Swevo/AutoDispatch.Generator) | Compile-time CQRS dispatcher — `[Handler]` generates a strongly-typed `IDispatcher`. No `IRequest<T>`, no reflection. |
 
 ## License
 
