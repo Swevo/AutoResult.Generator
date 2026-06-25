@@ -86,13 +86,14 @@ Unit.Value  // for void-returning methods
 - **Railway-oriented** — compose results cleanly with `Map`, `Bind`, `Match`
 - **Minimal API** — no third-party Result library required; types live in your project
 
-## Related Packages
+## Also by the same author
 
 | Package | Description |
-|---------|-------------|
-| [AutoMap.Generator](https://www.nuget.org/packages/AutoMap.Generator) | Compile-time object mapping |
-| [AutoWire.Generator](https://www.nuget.org/packages/AutoWire.Generator) | Compile-time DI registration |
-| [AutoValidate.Generator](https://www.nuget.org/packages/AutoValidate.Generator) | Compile-time FluentValidation wiring |
+|---|---|
+| [**AutoWire**](https://github.com/Swevo/AutoWire) | Compile-time DI auto-registration — `[Scoped]`/`[Singleton]`/`[Transient]` generates `IServiceCollection` code. Zero reflection. |
+| [**AutoMap.Generator**](https://github.com/Swevo/AutoMap.Generator) | Compile-time object mapping — `[Map(typeof(Dto))]` generates `ToDto()` extension methods. Zero reflection, AOT-safe. |
+| [**AutoValidate.Generator**](https://github.com/Swevo/AutoValidate.Generator) | Compile-time FluentValidation wiring — discovers `AbstractValidator<T>` subclasses and generates `AddValidators()`. |
+| [**AutoQuery.Generator**](https://github.com/Swevo/AutoQuery.Generator) | Compile-time LINQ query specs — `[QuerySpec(typeof(T))]` generates `Apply(IQueryable<T>)`. |
 
 ## License
 
