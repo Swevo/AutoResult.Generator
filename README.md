@@ -88,6 +88,9 @@ Unit.Value  // for void-returning methods
 
 ## Also by the same author
 
+> 🌐 Full suite overview: **[swevo.github.io](https://swevo.github.io/)**
+
+
 | Package | Description |
 |---|---|
 | [**AutoWire**](https://github.com/Swevo/AutoWire) | Compile-time DI auto-registration — `[Scoped]`/`[Singleton]`/`[Transient]` generates `IServiceCollection` code. Zero reflection. |
