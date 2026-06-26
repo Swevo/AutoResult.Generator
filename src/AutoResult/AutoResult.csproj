@@ -10,7 +10,7 @@
     <IncludeBuildOutput>false</IncludeBuildOutput>
     <NoWarn>$(NoWarn);NU5017;NU5128;RS2008</NoWarn>
 
-    <PackageId>AutoResult.Generator</PackageId>
+    <PackageId>Swevo.AutoResult</PackageId>
     <Version>1.0.0</Version>
     <Authors>Justin Bannister</Authors>
     <Copyright>Copyright (c) 2026 Justin Bannister</Copyright>
