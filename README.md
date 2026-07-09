@@ -3,6 +3,7 @@
 [![NuGet](https://img.shields.io/nuget/v/Swevo.AutoResult.svg)](https://www.nuget.org/packages/Swevo.AutoResult)
 [![NuGet Downloads](https://img.shields.io/nuget/dt/Swevo.AutoResult.svg)](https://www.nuget.org/packages/Swevo.AutoResult)
 [![CI](https://github.com/Swevo/AutoResult.Generator/actions/workflows/build.yml/badge.svg)](https://github.com/Swevo/AutoResult.Generator/actions/workflows/build.yml)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 
 A Roslyn source generator that automatically wraps your methods in `Result<T>` — zero reflection, zero runtime overhead, compile-time safe.
 
