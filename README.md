@@ -103,6 +103,22 @@ Unit.Value  // for void-returning methods
 | [**AutoLog.Generator**](https://github.com/Swevo/AutoLog.Generator) | Compile-time high-performance logging — `[Log(Level, Message)]` on a partial method generates `LoggerMessage.Define`. AOT-safe. |
 | [**AutoHttpClient.Generator**](https://github.com/Swevo/AutoHttpClient.Generator) | Compile-time typed HTTP client — `[HttpClient]` on an interface generates a strongly-typed client. AOT-safe Refit alternative. |
 
+## Related Packages
+
+| Package | Downloads | Description |
+|---|---|---|
+| [Swevo.AutoBus](https://www.nuget.org/packages/Swevo.AutoBus) | [![Downloads](https://img.shields.io/nuget/dt/Swevo.AutoBus.svg)](https://www.nuget.org/packages/Swevo.AutoBus) | Free, MIT-licensed in-process message bus for  |
+| [Swevo.AutoBus.RabbitMQ](https://www.nuget.org/packages/Swevo.AutoBus.RabbitMQ) | [![Downloads](https://img.shields.io/nuget/dt/Swevo.AutoBus.RabbitMQ.svg)](https://www.nuget.org/packages/Swevo.AutoBus.RabbitMQ) | RabbitMQ transport for AutoBus |
+| [Swevo.AutoAssert](https://www.nuget.org/packages/Swevo.AutoAssert) | [![Downloads](https://img.shields.io/nuget/dt/Swevo.AutoAssert.svg)](https://www.nuget.org/packages/Swevo.AutoAssert) | Free, MIT-licensed fluent assertions for  |
+| [Swevo.AutoAuth](https://www.nuget.org/packages/Swevo.AutoAuth) | [![Downloads](https://img.shields.io/nuget/dt/Swevo.AutoAuth.svg)](https://www.nuget.org/packages/Swevo.AutoAuth) | A free, MIT-licensed fluent configuration wrapper around OpenIddict for building OAuth2/OIDC token servers in ASP |
+| [Swevo.AutoAudit](https://www.nuget.org/packages/Swevo.AutoAudit) | [![Downloads](https://img.shields.io/nuget/dt/Swevo.AutoAudit.svg)](https://www.nuget.org/packages/Swevo.AutoAudit) | Compile-time audit field generation for EF Core entities using Roslyn source generators |
+| [Swevo.AutoGuard](https://www.nuget.org/packages/Swevo.AutoGuard) | [![Downloads](https://img.shields.io/nuget/dt/Swevo.AutoGuard.svg)](https://www.nuget.org/packages/Swevo.AutoGuard) | Compile-time guard clauses for  |
+| [Swevo.AutoImage](https://www.nuget.org/packages/Swevo.AutoImage) | [![Downloads](https://img.shields.io/nuget/dt/Swevo.AutoImage.svg)](https://www.nuget.org/packages/Swevo.AutoImage) | A free, MIT-licensed fluent image processing wrapper around SkiaSharp for  |
+| [Swevo.AutoFeatureFlag](https://www.nuget.org/packages/Swevo.AutoFeatureFlag) | [![Downloads](https://img.shields.io/nuget/dt/Swevo.AutoFeatureFlag.svg)](https://www.nuget.org/packages/Swevo.AutoFeatureFlag) | Compile-time feature flag stubs for  |
+| [Swevo.AutoTestData](https://www.nuget.org/packages/Swevo.AutoTestData) | [![Downloads](https://img.shields.io/nuget/dt/Swevo.AutoTestData.svg)](https://www.nuget.org/packages/Swevo.AutoTestData) | Compile-time test data builders for  |
+
+---
+
 ## License
 
 MIT
